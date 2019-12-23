@@ -1,2 +1,3 @@
 # HyperMusicPlayer
-It is a beautiful music player designed for android with gesture navigation.
+It is a music player with UI that is easy to control with one hand.
+Not completed yet.
