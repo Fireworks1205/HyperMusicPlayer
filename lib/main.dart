@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hypermusicplayer/settings.dart';
 
 void main() => runApp(HyperMusic());
 
@@ -47,7 +48,15 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                         children: <Widget>[
                           Align(
                               alignment: Alignment.bottomLeft,
-                              child: IconButton(icon: Icon(Icons.more_vert), onPressed: () {})
+                              child: IconButton(
+                                icon: Icon(Icons.settings), 
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => Settings())
+                                  );
+                                }
+                              )
                           ),
                           Align(
                               alignment: Alignment.bottomRight,
@@ -86,11 +95,11 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      IconButton(icon: Icon(Icons.skip_previous, color: Colors.blue,), onPressed: () {}),
+                      IconButton(icon: Icon(Icons.skip_previous, color: Color.fromRGBO(15, 76, 129, 1),), onPressed: () {}),
                       Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-                      FloatingActionButton(onPressed: () {}, child: Icon(Icons.play_arrow, color: Colors.white,), backgroundColor: Colors.blue,),
+                      FloatingActionButton(onPressed: () {}, child: Icon(Icons.play_arrow, color: Colors.white,), backgroundColor: Color.fromRGBO(15, 76, 129, 1),),
                       Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-                      IconButton(icon: Icon(Icons.skip_next, color: Colors.blue,), onPressed: () {}),
+                      IconButton(icon: Icon(Icons.skip_next, color: Color.fromRGBO(12, 76, 129, 1)), onPressed: () {}),
                     ],
                   ),
                 ),
