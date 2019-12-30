@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hypermusicplayer/info.dart';
-import 'package:hypermusicplayer/theme.dart';
+import 'package:flutter_app/info.dart';
+import 'package:flutter_app/theme.dart';
 
 class Settings extends StatefulWidget{
   @override 
@@ -12,11 +12,7 @@ class _SettingsState extends State<Settings>{
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.black
-        ),
         title: Text('Settings'),
-        backgroundColor: Colors.white,
       ),
       body: ListView(
         children: <Widget>[
@@ -39,8 +35,8 @@ class _SettingsState extends State<Settings>{
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text('Theme', style: TextStyle(fontSize: 17),),
-                        Text('Change the different colors of the app', style: TextStyle(color: Colors.grey[600]),)
+                        Text('Appearance', style: TextStyle(fontSize: 17),),
+                        Text('Change the colors of the app', style: TextStyle(color: Colors.grey[600]),)
                       ],
                     )
                   ],

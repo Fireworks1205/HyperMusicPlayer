@@ -5,35 +5,37 @@ class ThemeSettings extends StatefulWidget{
   _ThemeSettingsState createState() => _ThemeSettingsState();
 }
 
+
+
 class _ThemeSettingsState extends State<ThemeSettings> {
-  bool _value = false;
-
-  void _onChanged(bool value){
-    setState(() {
-      _value = value;
-    });
-  }
-
   @override 
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Theme'),
+        title: Text('Appearance'),
       ),
       body: ListView(
         children: <Widget>[
+          Padding(padding: EdgeInsets.all(10),),
+          Row(
+            children: <Widget>[
+              Padding(padding: EdgeInsets.fromLTRB(65, 0, 0, 0),),
+              Text('Color Theme', style: TextStyle(color: Color.fromRGBO(15, 76, 129, 1))),
+            ],
+          ),
+          Padding(padding: EdgeInsets.only(top: 10),),
           FlatButton(
             onPressed: () {},
             child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text('Dark Theme', style: TextStyle(fontSize: 17)),
-                Switch(
-                  value: _value,
-                  onChanged: (bool value){_onChanged(value);},
-                  activeColor: Color.fromRGBO(15, 76, 129, 1),
+                Icon(Icons.color_lens, color: Colors.grey[600], size: 30,),
+                Padding(padding: EdgeInsets.only(left: 20),),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Theme', style: TextStyle(fontSize: 17),),
+                    Text('Default(dark)', style: TextStyle(color: Colors.grey[600]),)
+                  ],
                 )
               ],
             ),

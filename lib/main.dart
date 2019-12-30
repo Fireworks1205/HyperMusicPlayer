@@ -1,6 +1,7 @@
+import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:hypermusicplayer/settings.dart';
+import 'package:flutter_app/settings.dart';
 
 void main() => runApp(HyperMusic());
 
@@ -8,9 +9,13 @@ class HyperMusic extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'HyperMusic',
       theme: ThemeData(
-        primarySwatch: Colors.lightBlue,
+        brightness: Brightness.light,
+        primaryColor: Colors.white
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark
       ),
       home: HyperMusicHome(title: 'Flutter Demo Home Page'),
     );
@@ -26,6 +31,23 @@ class HyperMusicHome extends StatefulWidget {
 }
 
 class _HyperMusicHomeState extends State<HyperMusicHome> {
+  List<Song> _songs;
+
+  @override 
+  void initState(){
+    super.initState();
+    initPlayer();
+  }
+
+  void initPlayer() async{
+    var songs = await MusicFinder.allSongs();
+    songs = new List.from(songs);
+
+    setState(() {
+      _songs = songs;
+    });
+  }
+
   PageController controller = PageController();
 
   @override
@@ -49,7 +71,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                           Align(
                               alignment: Alignment.bottomLeft,
                               child: IconButton(
-                                icon: Icon(Icons.settings), 
+                                icon: Icon(Icons.settings,color: Colors.black,), 
                                 onPressed: () {
                                   Navigator.push(
                                     context,
@@ -60,16 +82,33 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                           ),
                           Align(
                               alignment: Alignment.bottomRight,
-                              child: IconButton(icon: Icon(Icons.search), onPressed: () {})
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Padding(padding: EdgeInsets.fromLTRB(0, 0 , 10, 0),),
+                                      Text('Heaven', style: TextStyle(color: Colors.black, fontSize: 20)),
+                                      Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0),)
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      Padding(padding: EdgeInsets.fromLTRB(0, 0 , 10, 0),),
+                                      Text('Avicii', style: TextStyle(color: Colors.black)),
+                                      Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0),)
+                                    ],
+                                  ),
+                                ],
+                              )
                           ),
                         ],
                       ),
-
                       Container(
                         width: 500,
                         height: 20,
                         decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).primaryColor,
                             borderRadius: BorderRadius.only(topRight: Radius.circular(10.0), topLeft: Radius.circular(10.0)),
                             boxShadow: [
                               BoxShadow(
@@ -87,19 +126,24 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
               ),
           ),
           Container(
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
             width: 500,
-            decoration: BoxDecoration(color: Colors.white),
             child: Column(
               children: <Widget>[
                 Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Column(
                     children: <Widget>[
-                      IconButton(icon: Icon(Icons.skip_previous, color: Color.fromRGBO(15, 76, 129, 1),), onPressed: () {}),
-                      Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-                      FloatingActionButton(onPressed: () {}, child: Icon(Icons.play_arrow, color: Colors.white,), backgroundColor: Color.fromRGBO(15, 76, 129, 1),),
-                      Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-                      IconButton(icon: Icon(Icons.skip_next, color: Color.fromRGBO(12, 76, 129, 1)), onPressed: () {}),
+                      Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 0),),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          IconButton(icon: Icon(Icons.skip_previous, color: Color.fromRGBO(15, 76, 129, 1),), onPressed: () {}),
+                          Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
+                          FloatingActionButton(onPressed: () {}, child: Icon(Icons.play_arrow, color: Colors.white,), backgroundColor: Color.fromRGBO(15, 76, 129, 1),),
+                          Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
+                          IconButton(icon: Icon(Icons.skip_next, color: Color.fromRGBO(12, 76, 129, 1)), onPressed: () {}),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -112,7 +156,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                 controller: controller,
                 children: <Widget>[
                   Container(
-                    decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Colors.grey))),
+                    decoration: BoxDecoration(color: Theme.of(context).primaryColor ,border: Border(top: BorderSide(color: Colors.grey))),
                     child: Row(
                       children: <Widget>[
                         Padding(padding: EdgeInsets.only(left: 10)),
@@ -120,7 +164,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Padding(padding: EdgeInsets.only(top: 10)),
-                            Text('Recent Albums',style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold ), textAlign: TextAlign.left,),
+                            Text('Recent Albums',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold ), textAlign: TextAlign.left,),
                             Padding(padding: EdgeInsetsDirectional.only(top: 10)),
                             Row(
                               children: <Widget>[
@@ -134,7 +178,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                       ),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
-                                    Text('AVĪCI (01)', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                    Text('AVĪCI (01)', style: TextStyle(fontSize: 16)),
                                     Text('Avicii', style: TextStyle(fontSize: 14, color: Colors.grey),)
                                   ],
                                 ),
@@ -146,7 +190,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                     ),
                   ),
                   Container(
-                    decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Colors.grey))),
+                    decoration: BoxDecoration(color: Theme.of(context).primaryColor, border: Border(top: BorderSide(color: Colors.grey))),
                     child: Row(
                       children: <Widget>[
                         Padding(padding: EdgeInsets.only(left: 10)),
@@ -154,7 +198,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Padding(padding: EdgeInsets.only(top: 10)),
-                            Text('Artists',style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold ), textAlign: TextAlign.left,),
+                            Text('Artists',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold ), textAlign: TextAlign.left,),
                             Padding(padding: EdgeInsetsDirectional.only(top: 10)),
                             Row(
                               children: <Widget>[
@@ -166,7 +210,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                       child: Image.asset('lib/Avicii.jpg', width: 150, height: 150,),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
-                                    Text('Avicii', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                    Text('Avicii', style: TextStyle(fontSize: 16)),
                                   ],
                                 ),
                                 Padding(padding: EdgeInsets.only(left: 10)),
@@ -178,7 +222,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                       child: Image.asset('lib/MartinGarrix.jpg', width: 150, height: 150,),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
-                                    Text('Martin Garrix', style: TextStyle(fontSize: 16, color: Colors.black)),
+                                    Text('Martin Garrix', style: TextStyle(fontSize: 16)),
                                   ],
                                 ),
                               ],
@@ -189,7 +233,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                     ),
                   ),
                   Container(
-                    decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Colors.grey))),
+                    decoration: BoxDecoration(color: Theme.of(context).primaryColor,border: Border(top: BorderSide(color: Colors.grey))),
                     child: Row(
                       children: <Widget>[
                         Padding(padding: EdgeInsets.only(left: 10)),
@@ -197,27 +241,19 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Padding(padding: EdgeInsets.only(top: 10)),
-                            Text('Songs',style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold ), textAlign: TextAlign.left,),
+                            Text('Songs',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold ), textAlign: TextAlign.left,),
                             Padding(padding: EdgeInsetsDirectional.only(top: 10)),
                             Expanded(child: SingleChildScrollView(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.max,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Row(
-                                    children: <Widget>[
-                                      IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
-                                      Text('Without You', style: TextStyle(fontSize: 20))
-                                    ],
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-                                      IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
-                                      Text('Heaven', style: TextStyle(fontSize: 20),)
-                                    ],
-                                  ),
-                                ],
+                              child: new ListView.builder(
+                                itemCount: _songs.length,
+                                itemBuilder: (context, int index){
+                                  return new ListTile(
+                                    leading: new CircleAvatar(
+                                      child: new Text(_songs[index].title[0]),
+                                    ) ,
+                                    title: new Text(_songs[index].title),
+                                  );
+                                },
                               ),
                             ))
                           ],
