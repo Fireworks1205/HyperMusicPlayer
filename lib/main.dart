@@ -1,7 +1,7 @@
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/settings.dart';
+import 'package:hypermusicplayer/settings.dart';
 
 void main() => runApp(HyperMusic());
 
@@ -32,21 +32,28 @@ class HyperMusicHome extends StatefulWidget {
 
 class _HyperMusicHomeState extends State<HyperMusicHome> {
   List<Song> _songs;
+  MusicFinder audioPlayer;
 
-  @override 
+  @override
   void initState(){
     super.initState();
     initPlayer();
   }
 
   void initPlayer() async{
-    var songs = await MusicFinder.allSongs();
+    audioPlayer = new MusicFinder();
+    List<Song> songs = await MusicFinder.allSongs();
     songs = new List.from(songs);
 
     setState(() {
       _songs = songs;
     });
   }
+
+  Future _playLocal(String url) async {
+    final result = await audioPlayer.play(url, isLocal: true);
+  }
+
 
   PageController controller = PageController();
 
@@ -243,19 +250,26 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                             Padding(padding: EdgeInsets.only(top: 10)),
                             Text('Songs',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold ), textAlign: TextAlign.left,),
                             Padding(padding: EdgeInsetsDirectional.only(top: 10)),
-                            Expanded(child: SingleChildScrollView(
-                              child: new ListView.builder(
-                                itemCount: _songs.length,
-                                itemBuilder: (context, int index){
-                                  return new ListTile(
-                                    leading: new CircleAvatar(
-                                      child: new Text(_songs[index].title[0]),
-                                    ) ,
-                                    title: new Text(_songs[index].title),
-                                  );
-                                },
+                            Expanded(
+                              child: Container(
+                                width: 400,
+                                child: ListView.builder(
+                                  itemCount: _songs.length,
+                                  itemBuilder: (context, int index){
+                                    return ListTile(
+                                      leading: CircleAvatar(
+                                        child: Text(_songs[index].title[0]),
+                                        backgroundColor: Color.fromRGBO(15, 76, 129, 1),
+                                      ),
+                                      title: Text(_songs[index].title),
+                                      onTap: () {
+                                        _playLocal(_songs[index].uri);
+                                      },
+                                    );
+                                  },
+                                ),
                               ),
-                            ))
+                            )
                           ],
                         ),
                       ],

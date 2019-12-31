@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/info.dart';
-import 'package:flutter_app/theme.dart';
+import 'package:hypermusicplayer/info.dart';
+import 'package:hypermusicplayer/theme.dart';
 
 class Settings extends StatefulWidget{
   @override 
