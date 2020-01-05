@@ -22,7 +22,7 @@ class _InfoState extends State<Info>{
               children: <Widget>[
                 Padding(padding: EdgeInsets.fromLTRB(0, 40, 0, 0),),
                 Text('Hyper Music Player', style: TextStyle(fontSize: 30),),
-                Text('Version: 2.0.2'),
+                Text('Version: 2.0.3'),
                 Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0),),
                 Text('By Fireworks'),
                 Text('Developed by using Flutter'),

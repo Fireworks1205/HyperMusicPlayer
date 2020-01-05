@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hypermusicplayer/settings.dart';
+
+enum PlayerState { stopped, playing, paused }
 
 void main() => runApp(HyperMusic());
 
@@ -10,6 +13,7 @@ class HyperMusic extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'HyperMusic',
+      //Theme
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: Colors.white
@@ -17,7 +21,7 @@ class HyperMusic extends StatelessWidget {
       darkTheme: ThemeData(
         brightness: Brightness.dark
       ),
-      home: HyperMusicHome(title: 'Flutter Demo Home Page'),
+      home: HyperMusicHome(title: 'HyperMusicPlayer'),
     );
   }
 }
@@ -33,6 +37,9 @@ class HyperMusicHome extends StatefulWidget {
 class _HyperMusicHomeState extends State<HyperMusicHome> {
   List<Song> _songs;
   MusicFinder audioPlayer;
+  IconData iconData = Icons.play_arrow; 
+  int _index = 0; 
+  PlayerState playerState = PlayerState.stopped;
 
   @override
   void initState(){
@@ -40,20 +47,54 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
     initPlayer();
   }
 
+  //Player
   void initPlayer() async{
     audioPlayer = new MusicFinder();
     List<Song> songs = await MusicFinder.allSongs();
     songs = new List.from(songs);
-
     setState(() {
       _songs = songs;
     });
   }
 
-  Future _playLocal(String url) async {
-    final result = await audioPlayer.play(url, isLocal: true);
+  void stopPlayer() {
+    audioPlayer.stop();
   }
 
+  _playLocal(String url) async {
+    final result = await audioPlayer.play(url);
+    if (result == 1) setState((){
+      playerState = PlayerState.playing;
+      iconData = Icons.pause;
+    });
+  } 
+
+  pause() async {
+    final result = await audioPlayer.pause();
+    setState(() {
+      iconData = Icons.play_arrow;
+    });
+  }  
+  
+  void _onPressedPlay() {
+    setState(() {
+      if(iconData == Icons.pause){
+        pause();
+      }
+      if(iconData == Icons.play_arrow){
+        _playLocal(_songs[_index].uri);
+      }
+    });
+  }
+
+  //AlbumArt
+  dynamic getImage(int idx) {
+    if (_songs[idx].albumArt == null) {
+      return null;  
+    } else {
+      return new File.fromUri(Uri.parse(_songs[_index].albumArt));
+    }
+  }
 
   PageController controller = PageController();
 
@@ -67,7 +108,8 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                 alignment: AlignmentDirectional.bottomStart,
                 children: <Widget>[
                   Container(
-                    child: Image.asset('lib/Tim.jpg'),
+                    width: 500,
+                    child: _songs[_index].albumArt != null ? Image.file(File.fromUri(getImage(_index))) : Image.asset('lib/asdf.png')
                   ),
                   Column(
                     children: <Widget>[
@@ -90,19 +132,19 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                           Align(
                               alignment: Alignment.bottomRight,
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: <Widget>[
                                   Row(
                                     children: <Widget>[
                                       Padding(padding: EdgeInsets.fromLTRB(0, 0 , 10, 0),),
-                                      Text('Heaven', style: TextStyle(color: Colors.black, fontSize: 20)),
+                                      Text(_songs[_index].title, style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
                                       Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0),)
                                     ],
                                   ),
                                   Row(
                                     children: <Widget>[
                                       Padding(padding: EdgeInsets.fromLTRB(0, 0 , 10, 0),),
-                                      Text('Avicii', style: TextStyle(color: Colors.black)),
+                                      Text(_songs[_index].artist, style: TextStyle(color: Colors.black)),
                                       Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0),)
                                     ],
                                   ),
@@ -144,11 +186,31 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          IconButton(icon: Icon(Icons.skip_previous, color: Color.fromRGBO(15, 76, 129, 1),), onPressed: () {}),
+                          IconButton(icon: Icon(Icons.skip_previous, color: Color.fromRGBO(15, 76, 129, 1),), onPressed: () {
+                            setState(() {
+                              if (_songs[_index-1] == null) {
+                                pause();
+                              } else {
+                                stopPlayer();
+                                _playLocal(_songs[_index-1].uri);
+                                _index--;
+                              }
+                            });
+                          }),
                           Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-                          FloatingActionButton(onPressed: () {}, child: Icon(Icons.play_arrow, color: Colors.white,), backgroundColor: Color.fromRGBO(15, 76, 129, 1),),
+                          FloatingActionButton(onPressed: _onPressedPlay, child: Icon(iconData, color: Colors.white,), backgroundColor: Color.fromRGBO(15, 76, 129, 1),),
                           Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-                          IconButton(icon: Icon(Icons.skip_next, color: Color.fromRGBO(12, 76, 129, 1)), onPressed: () {}),
+                          IconButton(icon: Icon(Icons.skip_next, color: Color.fromRGBO(12, 76, 129, 1)), onPressed: () {
+                            setState(() {
+                              if (_songs[_index+1] == null) {
+                                pause();
+                              } else{
+                                stopPlayer();
+                                _playLocal(_songs[_index+1].uri);
+                                _index++;
+                              }
+                            });
+                          }),
                         ],
                       ),
                     ],
@@ -181,7 +243,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                     Container(
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(10.0),
-                                        child: Image.asset('lib/AVICI.jpg', width: 150, height: 150,),
+                                        child: Image.asset('lib/AVICI.jpg', width: 100, height: 100,),
                                       ),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
@@ -214,7 +276,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                   children: <Widget>[
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10.0),
-                                      child: Image.asset('lib/Avicii.jpg', width: 150, height: 150,),
+                                      child: Image.asset('lib/Avicii.jpg', width: 100, height: 100,),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
                                     Text('Avicii', style: TextStyle(fontSize: 16)),
@@ -226,7 +288,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                   children: <Widget>[
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10.0),
-                                      child: Image.asset('lib/MartinGarrix.jpg', width: 150, height: 150,),
+                                      child: Image.asset('lib/MartinGarrix.jpg', width: 100, height: 100,),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
                                     Text('Martin Garrix', style: TextStyle(fontSize: 16)),
@@ -257,12 +319,11 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                   itemCount: _songs.length,
                                   itemBuilder: (context, int index){
                                     return ListTile(
-                                      leading: CircleAvatar(
-                                        child: Text(_songs[index].title[0]),
-                                        backgroundColor: Color.fromRGBO(15, 76, 129, 1),
-                                      ),
+                                      leading: Icon(Icons.more_vert),
                                       title: Text(_songs[index].title),
                                       onTap: () {
+                                        stopPlayer();                                       
+                                        _index = index;
                                         _playLocal(_songs[index].uri);
                                       },
                                     );
