@@ -2,11 +2,15 @@ import 'dart:io';
 import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hypermusicplayer/nowPlaying.dart';
 import 'package:hypermusicplayer/settings.dart';
 
-enum PlayerState { stopped, playing, paused }
-
 void main() => runApp(HyperMusic());
+
+enum PlayerState { stopped, playing, paused }
+PlayerState playerState = PlayerState.stopped;
+IconData iconData = Icons.play_arrow;  
+int curIdx = 0;
 
 class HyperMusic extends StatelessWidget {
   @override
@@ -35,11 +39,9 @@ class HyperMusicHome extends StatefulWidget {
 }
 
 class _HyperMusicHomeState extends State<HyperMusicHome> {
-  List<Song> _songs;
   MusicFinder audioPlayer;
-  IconData iconData = Icons.play_arrow; 
-  int _index = 0; 
-  PlayerState playerState = PlayerState.stopped;
+  List<Song> _songs;
+  IconData iconData = Icons.play_arrow;    
 
   @override
   void initState(){
@@ -59,6 +61,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
 
   void stopPlayer() {
     audioPlayer.stop();
+    playerState = PlayerState.stopped;
   }
 
   _playLocal(String url) async {
@@ -71,18 +74,20 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
 
   pause() async {
     final result = await audioPlayer.pause();
-    setState(() {
-      iconData = Icons.play_arrow;
-    });
+    if (result == 1) {
+      setState(() {
+        playerState = PlayerState.paused;
+      });
+    }
   }  
   
   void _onPressedPlay() {
     setState(() {
-      if(iconData == Icons.pause){
+      if(playerState == PlayerState.playing){
         pause();
       }
-      if(iconData == Icons.play_arrow){
-        _playLocal(_songs[_index].uri);
+      else {
+        _playLocal(_songs[curIdx].uri);
       }
     });
   }
@@ -92,7 +97,16 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
     if (_songs[idx].albumArt == null) {
       return null;  
     } else {
-      return new File.fromUri(Uri.parse(_songs[_index].albumArt));
+      return new File.fromUri(Uri.parse(_songs[curIdx].albumArt));
+    }
+  }
+
+  IconData getIcon(){
+    if (playerState == PlayerState.playing) {
+      return Icons.pause;
+    }
+    else{
+      return Icons.play_arrow;
     }
   }
 
@@ -109,7 +123,17 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                 children: <Widget>[
                   Container(
                     width: 500,
-                    child: _songs[_index].albumArt != null ? Image.file(File.fromUri(getImage(_index))) : Image.asset('lib/asdf.png')
+                    child: GestureDetector(
+                      child: _songs[curIdx].albumArt != null ? Image.file(File.fromUri(getImage(curIdx))) : Image.asset('lib/asdf.png'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NowPlaying()
+                          )
+                        );
+                      },
+                    )
                   ),
                   Column(
                     children: <Widget>[
@@ -137,14 +161,14 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                   Row(
                                     children: <Widget>[
                                       Padding(padding: EdgeInsets.fromLTRB(0, 0 , 10, 0),),
-                                      Text(_songs[_index].title, style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+                                      Text(_songs[curIdx].title, style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
                                       Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0),)
                                     ],
                                   ),
                                   Row(
                                     children: <Widget>[
                                       Padding(padding: EdgeInsets.fromLTRB(0, 0 , 10, 0),),
-                                      Text(_songs[_index].artist, style: TextStyle(color: Colors.black)),
+                                      Text(_songs[curIdx].artist, style: TextStyle(color: Colors.black)),
                                       Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0),)
                                     ],
                                   ),
@@ -163,7 +187,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                               BoxShadow(
                                 color: Colors.grey,
                                 spreadRadius: 10,
-                                blurRadius: 20,
+                                blurRadius: 30,
                                 offset: Offset(0, -7)
                               )
                             ]
@@ -186,28 +210,35 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          IconButton(icon: Icon(Icons.skip_previous, color: Color.fromRGBO(15, 76, 129, 1),), onPressed: () {
+                          IconButton(icon: Icon(Icons.skip_previous, ), onPressed: () {
                             setState(() {
-                              if (_songs[_index-1] == null) {
+                              if (_songs[curIdx-1] == null) {
                                 pause();
                               } else {
                                 stopPlayer();
-                                _playLocal(_songs[_index-1].uri);
-                                _index--;
+                                _playLocal(_songs[curIdx-1].uri);
+                                curIdx--;
                               }
                             });
                           }),
-                          Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-                          FloatingActionButton(onPressed: _onPressedPlay, child: Icon(iconData, color: Colors.white,), backgroundColor: Color.fromRGBO(15, 76, 129, 1),),
-                          Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
-                          IconButton(icon: Icon(Icons.skip_next, color: Color.fromRGBO(12, 76, 129, 1)), onPressed: () {
+                          Padding(padding: EdgeInsets.fromLTRB(40, 0, 0, 0)),
+                          FloatingActionButton(
+                            onPressed: _onPressedPlay,
+                            child: Icon(
+                              getIcon(), 
+                              color: Colors.white,
+                            ), 
+                            backgroundColor: Color.fromRGBO(15, 76, 129, 1),
+                          ),
+                          Padding(padding: EdgeInsets.fromLTRB(40, 0, 0, 0)),
+                          IconButton(icon: Icon(Icons.skip_next,), onPressed: () {
                             setState(() {
-                              if (_songs[_index+1] == null) {
+                              if (_songs[curIdx+1] == null) {
                                 pause();
                               } else{
                                 stopPlayer();
-                                _playLocal(_songs[_index+1].uri);
-                                _index++;
+                                _playLocal(_songs[curIdx+1].uri);
+                                curIdx++;
                               }
                             });
                           }),
@@ -243,7 +274,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                     Container(
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(10.0),
-                                        child: Image.asset('lib/AVICI.jpg', width: 100, height: 100,),
+                                        child: Image.asset('lib/AVICI.jpg', width: 150, height: 150,),
                                       ),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
@@ -276,7 +307,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                   children: <Widget>[
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10.0),
-                                      child: Image.asset('lib/Avicii.jpg', width: 100, height: 100,),
+                                      child: Image.asset('lib/Avicii.jpg', width: 150, height: 150,),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
                                     Text('Avicii', style: TextStyle(fontSize: 16)),
@@ -288,7 +319,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                   children: <Widget>[
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10.0),
-                                      child: Image.asset('lib/MartinGarrix.jpg', width: 100, height: 100,),
+                                      child: Image.asset('lib/MartinGarrix.jpg', width: 150, height: 150,),
                                     ),
                                     Padding(padding: EdgeInsets.only(bottom: 10)),
                                     Text('Martin Garrix', style: TextStyle(fontSize: 16)),
@@ -323,7 +354,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                       title: Text(_songs[index].title),
                                       onTap: () {
                                         stopPlayer();                                       
-                                        _index = index;
+                                        curIdx = index;
                                         _playLocal(_songs[index].uri);
                                       },
                                     );
