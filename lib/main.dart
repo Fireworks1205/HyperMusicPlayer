@@ -47,11 +47,6 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
   Duration duration;
   Duration position;
 
-  get durationText =>
-      duration != null ? duration.toString().split('.').first : '';
-  get positionText =>
-      position != null ? position.toString().split('.').first : '';
-
   @override
   void initState(){
     super.initState();

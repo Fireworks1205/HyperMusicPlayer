@@ -225,7 +225,7 @@ class _NowPlayingState extends State<NowPlaying>{
                         FloatingActionButton(child: Icon(getIcon(), color: Colors.white,), backgroundColor: Color.fromRGBO(15, 76, 129, 1), onPressed: () {_onPressedPlay();},),
                         Padding(padding: EdgeInsets.only(right: 40),),
                         IconButton(icon: Icon(Icons.skip_next,), onPressed: () {
-                          skipPrevious();
+                          skipNext();
                         },)
                       ],
                     )
