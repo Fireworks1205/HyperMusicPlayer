@@ -116,12 +116,14 @@ class _NowPlayingState extends State<NowPlaying>{
 
   @override 
   Widget build(BuildContext context){
+    var screenSize = MediaQuery.of(context).size;
     return Scaffold(
       body:  SafeArea(
         child: Column(
           children: <Widget>[
             Container(
-              width: 500,
+              width: screenSize.width,
+              height: screenSize.height/2,
               child: _songs[curIdx].albumArt != null ? Image.file(File.fromUri(Uri.parse(_songs[curIdx].albumArt))) : Image.asset('images/asdf.png')
             ),
             Expanded(
@@ -142,14 +144,14 @@ class _NowPlayingState extends State<NowPlaying>{
                   children: <Widget>[
                     Column(
                       children: <Widget>[
-                        Padding(padding: EdgeInsets.only(top: 70),),
-                        Text(_songs[curIdx].title.length < 34 ? _songs[curIdx].title : _songs[curIdx].title.substring(0, 31) + "...",  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
-                        Padding(padding: EdgeInsets.only(top: 8),),
+                        Padding(padding: EdgeInsets.only(top: screenSize.height/15),),
+                        Text(_songs[curIdx].title.length < (screenSize.width - 20)/15 ? _songs[curIdx].title : _songs[curIdx].title.substring(0, ((screenSize.width - 20)/15).round()) + "...",  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+                        Padding(padding: EdgeInsets.only(top: screenSize.height/128),),
                         Text(_songs[curIdx].artist, style: TextStyle(color: Colors.grey),),
-                        Padding(padding: EdgeInsets.only(top: 5),)
+                        
                       ],
                     ),
-                    Padding(padding: EdgeInsets.only(top: 40)),
+                    Padding(padding: EdgeInsets.only(top: (screenSize.height - screenSize.width)/16)),
                     SliderTheme(
                       data: SliderTheme.of(context).copyWith(
                         thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7.0)
@@ -183,7 +185,7 @@ class _NowPlayingState extends State<NowPlaying>{
                         )
                       ],
                     ),
-                    Padding(padding: EdgeInsets.only(top: 48),),
+                    Padding(padding: EdgeInsets.only(top: (screenSize.height - screenSize.width)/16),),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[

@@ -116,6 +116,8 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = 
+        MediaQuery.of(context).size;
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -124,7 +126,8 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                 alignment: AlignmentDirectional.bottomStart,
                 children: <Widget>[
                   Container(
-                    width: 500,
+                    width: screenSize.width,
+                    height: screenSize.height/2,
                     child: GestureDetector(
                       child: _songs[curIdx].albumArt != null ? Image.file(File.fromUri(getImage(curIdx))) : Image.asset('images/asdf.png'),
                       onTap: () {
@@ -164,7 +167,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                     children: <Widget>[
                                       Padding(padding: EdgeInsets.fromLTRB(0, 0 , 10, 0),),
                                       Text(
-                                        _songs[curIdx].title.length < 34 ? _songs[curIdx].title : _songs[curIdx].title.substring(0, 31) + "...",
+                                        _songs[curIdx].title.length < (screenSize.width - 20)/15 ? _songs[curIdx].title : _songs[curIdx].title.substring(0, ((screenSize.width - 20)/15).round()) + "...",
                                        style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)
                                       ),
                                       Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0),)
@@ -183,7 +186,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                         ],
                       ),
                       Container(
-                        width: 500,
+                        width: screenSize.width,
                         height: 20,
                         decoration: BoxDecoration(
                             color: Theme.of(context).primaryColor,
@@ -205,13 +208,13 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
           ),
           Container(
             decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-            width: 500,
+            width: screenSize.width,
             child: Column(
               children: <Widget>[
                 Center(
                   child: Column(
                     children: <Widget>[
-                      Padding(padding: EdgeInsets.fromLTRB(0, 10, 0, 0),),
+                      Padding(padding: EdgeInsets.only(top: screenSize.height/256),),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -267,20 +270,20 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                     child: Row(
                       children: <Widget>[
                         Padding(padding: EdgeInsets.only(left: 10)),
-                        Column(
+                        Column( 
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Padding(padding: EdgeInsets.only(top: 10)),
                             Text('Songs',style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold ), textAlign: TextAlign.left,),
                             Expanded(
                               child: Container(
-                                width: 400,
+                                width: screenSize.width-10,
                                 child: ListView.builder(
                                   itemCount: _songs.length,
                                   itemBuilder: (context, int index){
                                     return ListTile(
                                       leading: Icon(Icons.more_vert),
-                                      title: Text(_songs[index].title),
+                                      title: Text(_songs[index].title.length < (screenSize.width - 20)/6 ? _songs[index].title : _songs[index].title.substring(0, ((screenSize.width - 20)/6).round()) + "..."),
                                       onTap: () {
                                         stopPlayer();                                       
                                         curIdx = index;
