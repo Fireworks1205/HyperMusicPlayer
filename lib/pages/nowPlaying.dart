@@ -103,6 +103,28 @@ class _NowPlayingState extends State<NowPlaying>{
     });
   }
 
+  void skipPrevious() {
+    if(_songs[curIdx-1] != null){
+      curIdx--;
+      stopPlayer();
+      _playLocal(_songs[curIdx].uri);
+    }
+    else{
+      exit(-1);
+    }
+  }
+
+  void skipNext(){
+    if(_songs[curIdx+1] != null){
+      curIdx++;
+      stopPlayer();
+      _playLocal(_songs[curIdx].uri);
+    }
+    else{
+      exit(-1);
+    }
+  }
+
   //AlbumArt
   dynamic getImage(int idx) {
     if (_songs[idx].albumArt == null) {
@@ -197,27 +219,13 @@ class _NowPlayingState extends State<NowPlaying>{
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         IconButton(icon: Icon(Icons.skip_previous,), onPressed: () {
-                          if (_songs[curIdx - 1] == null) {
-                            pause();
-                          }
-                          else{
-                            curIdx--;
-                            stopPlayer();
-                            _playLocal(_songs[curIdx].uri);
-                          }
+                          skipPrevious();
                         },),
                         Padding(padding: EdgeInsets.only(right: 40),),
                         FloatingActionButton(child: Icon(getIcon(), color: Colors.white,), backgroundColor: Color.fromRGBO(15, 76, 129, 1), onPressed: () {_onPressedPlay();},),
                         Padding(padding: EdgeInsets.only(right: 40),),
                         IconButton(icon: Icon(Icons.skip_next,), onPressed: () {
-                          if (_songs[curIdx + 1] == null) {
-                            pause();
-                          }
-                          else{
-                            curIdx++;
-                            stopPlayer();
-                            _playLocal(_songs[curIdx].uri);
-                          }
+                          skipPrevious();
                         },)
                       ],
                     )

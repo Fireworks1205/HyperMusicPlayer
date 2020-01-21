@@ -50,7 +50,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
   get durationText =>
       duration != null ? duration.toString().split('.').first : '';
   get positionText =>
-      position != null ? position.toString().split('.').first : '';   
+      position != null ? position.toString().split('.').first : '';
 
   @override
   void initState(){
@@ -59,10 +59,13 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
   }
 
   //Player
-  void initPlayer() async{
+  Future initPlayer() async{
     audioPlayer = new MusicFinder();
     List<Song> songs = await MusicFinder.allSongs();
     songs = new List.from(songs);
+    setState(() {
+      _songs = songs;
+    });
 
     audioPlayer.setDurationHandler((d) => setState(() {
       duration = d;
@@ -86,32 +89,41 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
         position = new Duration(seconds: 0);
       });
     });
-    setState(() {
-      _songs = songs;
-    });
   }
 
-  void stopPlayer() {
-    audioPlayer.stop();
-    playerState = PlayerState.stopped;
+  Future stopPlayer() async {
+    final result = await audioPlayer.stop();
+    if (result == 1)
+      setState(() {
+        playerState = PlayerState.stopped;
+        position = new Duration();
+      });
   }
 
   _playLocal(String url) async {
     final result = await audioPlayer.play(url);
     if (result == 1) setState((){
       playerState = PlayerState.playing;
-      iconData = Icons.pause;
     });
   } 
 
   pause() async {
     final result = await audioPlayer.pause();
-    if (result == 1) {
-      setState(() {
-        playerState = PlayerState.paused;
-      });
-    }
+    if (result == 1) setState(() {
+      playerState = PlayerState.paused;
+    });
   }  
+  
+  void onComplete() {
+    stopPlayer();
+    setState(() {
+      curIdx++;
+      if(curIdx >= _songs.length){
+        curIdx = 0;
+      }
+      _playLocal(_songs[curIdx].uri);
+    });
+  }
 
   void skipPrevious() {
     if(_songs[curIdx-1] != null){
@@ -134,12 +146,6 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
       exit(-1);
     }
   }
-
-  void autoSkip(){
-    if (position == duration) {
-      skipNext();
-    }
-  }
   
   void _onPressedPlay() {
     setState(() {
@@ -149,17 +155,6 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
       else {
         _playLocal(_songs[curIdx].uri);
       }
-    });
-  }
-
-  void onComplete() {
-    stopPlayer();
-    setState(() {
-      curIdx++;
-      if(curIdx >= _songs.length){
-        curIdx = 0;
-      }
-      _playLocal(_songs[curIdx].uri);
     });
   }
 
@@ -359,4 +354,4 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
       ),
     );
   }
-}
+} 
