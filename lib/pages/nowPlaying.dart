@@ -82,7 +82,14 @@ class _NowPlayingState extends State<NowPlaying>{
   }  
   
   void onComplete() {
-    setState(() => playerState = PlayerState.stopped);
+    stopPlayer();
+    setState(() {
+      curIdx++;
+      if(curIdx >= _songs.length){
+        curIdx = 0;
+      }
+      _playLocal(_songs[curIdx].uri);
+    });
   }
 
   void _onPressedPlay() {

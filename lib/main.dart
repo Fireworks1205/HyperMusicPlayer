@@ -43,7 +43,14 @@ class HyperMusicHome extends StatefulWidget {
 class _HyperMusicHomeState extends State<HyperMusicHome> {
   MusicFinder audioPlayer;
   List<Song> _songs;
-  IconData iconData = Icons.play_arrow;    
+  IconData iconData = Icons.play_arrow; 
+  Duration duration;
+  Duration position;
+
+  get durationText =>
+      duration != null ? duration.toString().split('.').first : '';
+  get positionText =>
+      position != null ? position.toString().split('.').first : '';   
 
   @override
   void initState(){
@@ -56,6 +63,29 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
     audioPlayer = new MusicFinder();
     List<Song> songs = await MusicFinder.allSongs();
     songs = new List.from(songs);
+
+    audioPlayer.setDurationHandler((d) => setState(() {
+      duration = d;
+    }));
+
+    audioPlayer.setPositionHandler((p) => setState(() {
+          position = p;
+    }));
+
+    audioPlayer.setCompletionHandler(() {
+      onComplete();
+      setState(() {
+        position = duration;
+      });
+    });
+
+    audioPlayer.setErrorHandler((msg) {
+      setState(() {
+        playerState = PlayerState.stopped;
+        duration = new Duration(seconds: 0);
+        position = new Duration(seconds: 0);
+      });
+    });
     setState(() {
       _songs = songs;
     });
@@ -82,6 +112,34 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
       });
     }
   }  
+
+  void skipPrevious() {
+    if(_songs[curIdx-1] != null){
+      curIdx--;
+      stopPlayer();
+      _playLocal(_songs[curIdx].uri);
+    }
+    else{
+      exit(-1);
+    }
+  }
+
+  void skipNext(){
+    if(_songs[curIdx+1] != null){
+      curIdx++;
+      stopPlayer();
+      _playLocal(_songs[curIdx].uri);
+    }
+    else{
+      exit(-1);
+    }
+  }
+
+  void autoSkip(){
+    if (position == duration) {
+      skipNext();
+    }
+  }
   
   void _onPressedPlay() {
     setState(() {
@@ -91,6 +149,17 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
       else {
         _playLocal(_songs[curIdx].uri);
       }
+    });
+  }
+
+  void onComplete() {
+    stopPlayer();
+    setState(() {
+      curIdx++;
+      if(curIdx >= _songs.length){
+        curIdx = 0;
+      }
+      _playLocal(_songs[curIdx].uri);
     });
   }
 
@@ -219,15 +288,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           IconButton(icon: Icon(Icons.skip_previous, ), onPressed: () {
-                            setState(() {
-                              if (_songs[curIdx-1] == null) {
-                                pause();
-                              } else {
-                                stopPlayer();
-                                _playLocal(_songs[curIdx-1].uri);
-                                curIdx--;
-                              }
-                            });
+                            skipPrevious();
                           }),
                           Padding(padding: EdgeInsets.fromLTRB(40, 0, 0, 0)),
                           FloatingActionButton(
@@ -240,15 +301,7 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                           ),
                           Padding(padding: EdgeInsets.fromLTRB(40, 0, 0, 0)),
                           IconButton(icon: Icon(Icons.skip_next,), onPressed: () {
-                            setState(() {
-                              if (_songs[curIdx+1] == null) {
-                                pause();
-                              } else{
-                                stopPlayer();
-                                _playLocal(_songs[curIdx+1].uri);
-                                curIdx++;
-                              }
-                            });
+                            skipNext();
                           }),
                         ],
                       ),
@@ -285,8 +338,8 @@ class _HyperMusicHomeState extends State<HyperMusicHome> {
                                       leading: Icon(Icons.more_vert),
                                       title: Text(_songs[index].title.length < (screenSize.width - 20)/6 ? _songs[index].title : _songs[index].title.substring(0, ((screenSize.width - 20)/6).round()) + "..."),
                                       onTap: () {
-                                        stopPlayer();                                       
                                         curIdx = index;
+                                        stopPlayer();
                                         _playLocal(_songs[index].uri);
                                       },
                                     );
